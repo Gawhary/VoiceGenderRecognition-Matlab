@@ -2,8 +2,9 @@ function [ y ] = gender( f,fs)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 f=f(:,1);
+m=0;
 m = mean(f);
-threshold = mean(abs(f));
+threshold = mean(abs(f))/2;
 f(abs(f)<threshold) = m;
 l=length(f);
 plot(f);
@@ -41,6 +42,7 @@ for p=2:length(zeropos)
     d = zeropos(p)-zeropos(p-1) ;
     if( d > minSilentPeriod)
        sl = sl-d;
+        c = c-1;
     elseif(d < minSpeakPeriod)
         c = c-1;
         sl = sl-d;
@@ -51,7 +53,10 @@ d = l-zeropos(length(zeropos));
 if( d > minSilentPeriod)
     sl = sl-d;
 end
-
+if(sl==0 || c==0)
+    y=0;
+    return;
+end
 x1=sl/c;
 y=fs/x1;
 
