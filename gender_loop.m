@@ -9,10 +9,22 @@ females = 0;
 amb = 0;
 min = 99999;
 max = 0;
-for K = 1 : length(filenames)
-  thisfullname = fullfile(pathname, filenames{K});
+if iscell(filenames)
+    nbfiles = length(filenames);
+elseif filenames ~= 0
+    nbfiles = 1;
+else
+    nbfiles = 0;
+end
+for K = 1 : nbfiles
+  if(nbfiles > 1)
+      filename = filenames{K}
+  else
+      filename = filenames
+  end
+  thisfullname = fullfile(pathname, filename);
   disp('--------------------------------------------------');
-  disp(filenames{K});
+  disp(filename);
   [f,fs]=wavread(thisfullname);
   result(K)=gender(f,fs);
   fprintf('frequency: %d \n', fs);
