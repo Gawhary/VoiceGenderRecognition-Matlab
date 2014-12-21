@@ -1,8 +1,8 @@
-[filenames, pathname, filterindex] = uigetfile( ...
-{  '*.wav','WAV-files (*.wav)'; ...
-   '*.*',  'All Files (*.*)'}, ...
-   'Pick a file', ...
-   'MultiSelect', 'on');
+% [filenames, pathname, filterindex] = uigetfile( ...
+% {  '*.wav','WAV-files (*.wav)'; ...
+%    '*.*',  'All Files (*.*)'}, ...
+%    'Pick a file', ...
+%    'MultiSelect', 'on');
 errors = 0;
 males = 0;
 females = 0;
@@ -18,15 +18,15 @@ else
 end
 for K = 1 : nbfiles
   if(nbfiles > 1)
-      filename = filenames{K}
+      filename = filenames{K};
   else
-      filename = filenames
+      filename = filenames;
   end
   thisfullname = fullfile(pathname, filename);
   disp('--------------------------------------------------');
   disp(filename);
   [f,fs]=wavread(thisfullname);
-  result(K)=gender(f,fs);
+  result(K)=speechFrequency(f,fs);
   fprintf('frequency: %d \n', fs);
   fprintf('result: %16.f \n', result(K) );
 

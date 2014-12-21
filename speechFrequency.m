@@ -1,11 +1,11 @@
-function [ y ] = gender( f,fs)
+function [ y ] = speechFrequency( f,fs)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 f=f(:,1);
 m=0;
-m = mean(f);
-threshold = mean(abs(f))/2;
-f(abs(f)<threshold) = m;
+% m = mean(f);
+% threshold = mean(abs(f));
+% f(abs(f)<threshold) = m;
 l=length(f);
 plot(f);
 %zeropos=zeros(l);
@@ -16,9 +16,9 @@ c=0;
 
 f_3=f;
 
-for i=1 : (l-6)
-    f_3(i+3)=(f(i)+f(i+1)+f(i+2)+f(i+3)+f(i+4)+f(i+5)+f(i+6))/7;
-end
+% for i=1 : (l-6)
+%     f_3(i+3)=(f(i)+f(i+1)+f(i+2)+f(i+3)+f(i+4)+f(i+5)+f(i+6))/7;
+% end
 sound(f_3,fs);
 plot(f_3);
 c=0;
@@ -30,25 +30,32 @@ for j=1 : l-4
     end
 end
 
-% calculate remove silence from length
-minSilentPeriod=fs/(50);
-minSpeakPeriod=fs/300;
+
+% calculate remove silence
+minSilentPeriod=fs/20;
+minSpeakPeriod=fs/500;
 sl = l;
 if (zeropos(1) > minSilentPeriod)
     sl = sl - zeropos(1); 
 end
-
+factor=2/max(abs(f));
+sc = c
+ampP=1;
 for p=2:length(zeropos)
     d = zeropos(p)-zeropos(p-1) ;
     if( d > minSilentPeriod)
        sl = sl-d;
-        c = c-1;
+        sc = sc-1;
     elseif(d < minSpeakPeriod)
-        c = c-1;
+        sc = sc-1;
         sl = sl-d;
+    else
+        amp = max(abs(f_3(zeropos(p-1):zeropos(p))));
+        ambAtPos(ampP) = amp*factor;
+        ampP = ampP + 1;
     end
 end
-
+x2 = sum(ambAtPos);
 d = l-zeropos(length(zeropos));
 if( d > minSilentPeriod)
     sl = sl-d;
@@ -57,8 +64,10 @@ if(sl==0 || c==0)
     y=0;
     return;
 end
-x1=sl/c;
-y=fs/x1;
+t=l/fs;
+st=sl/fs;
+y=x2/st;
+% y=sc/st;
 
 
 end
