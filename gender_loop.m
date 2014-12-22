@@ -1,8 +1,8 @@
-% [filenames, pathname, filterindex] = uigetfile( ...
-% {  '*.wav','WAV-files (*.wav)'; ...
-%    '*.*',  'All Files (*.*)'}, ...
-%    'Pick a file', ...
-%    'MultiSelect', 'on');
+[filenames, pathname, filterindex] = uigetfile( ...
+{  '*.wav','WAV-files (*.wav)'; ...
+   '*.*',  'All Files (*.*)'}, ...
+   'Pick a file', ...
+   'MultiSelect', 'on');
 errors = 0;
 males = 0;
 females = 0;
@@ -28,7 +28,7 @@ for K = 1 : nbfiles
   [f,fs]=wavread(thisfullname);
   result(K)=speechFrequency(f,fs);
   fprintf('frequency: %d \n', fs);
-  fprintf('result: %16.f \n', result(K) );
+  fprintf('result: %5.3f \n', result(K) );
 
   if(result(K) > max)
       max = result(K);
@@ -36,14 +36,15 @@ for K = 1 : nbfiles
   if(result(K) < min)
       min = result(K);
   end
-  
-  if(result(K) < 50 || result(K) > 300)
-      disp('Error');
-      errors = errors + 1;
-  elseif (result(K)>180)
+%   
+%   if(result(K) < 50 || result(K) > 500)
+%       disp('Error');
+%       errors = errors + 1;
+% else
+  if (result(K)>250)
       disp('female')
       females = females + 1;
-  elseif (result(K)<165)
+  elseif (result(K)<230)
       disp('male');
       males = males + 1;
   else
@@ -53,11 +54,11 @@ for K = 1 : nbfiles
   
   disp('__________________________________________________');
   
-end
-
-fprintf('min: %5.f\n', min );
-fprintf('max: %5.f\n', max );
+fprintf('min: %5.3f\n', min );
+fprintf('max: %5.3f\n', max );
 fprintf('males: %d\n', males );
 fprintf('females: %d\n', females );
 fprintf('ambiguous: %d\n', amb );
 fprintf('errors: %d\n', errors );
+
+end
