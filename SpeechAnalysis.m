@@ -1,12 +1,6 @@
-clear all
-% get a waveform
-[filename, pathname, filterindex] = uigetfile( ...
-{  '*.wav','WAV-files (*.wav)'; ...
-   '*.*',  'All Files (*.*)'}, ...
-   'Pick a file');
-fn = fullfile(pathname, filename);
-[x1,fs,nb]=wavread(fn); %,[24120 26930]);
+ function [medianfx, stdfx] = speechAnalysis(x1,fs,nb)
 x1 = x1(:,1);
+sound(x1,fs);
 % generate test tone:
 % fs=12000;
 % f=150;
@@ -18,12 +12,12 @@ ms10=floor(fs*0.01);
 ms20=floor(fs*0.02);
 ms30=floor(fs*0.03);
 % plot waveform
-t=(0:length(x1)-1)/fs;
-subplot(3,1,1);
-plot(t,x1);
-legend('Waveform');
-xlabel('Time (s)');
-ylabel('Amplitude');
+% t=(0:length(x1)-1)/fs;
+% subplot(3,1,1);
+% plot(t,x1);
+% legend('Waveform');
+% xlabel('Time (s)');
+% ylabel('Amplitude');
 h = fir1(128, 0.075);        %lavepass filter
 x = conv(x1, h);              %output of the lavepass filter
 
@@ -55,7 +49,7 @@ cou = cou-1;
 gx =[];
 j=1;
 for i= 1:length(fx)
-    if (fx(i)>0 && fx(i)<500)
+    if (fx(i)>75 && fx(i)<275)
         gx(j)=fx(i);
         j=j+1;
         
@@ -65,35 +59,25 @@ medianfx=median(gx);
 stdfx=std(gx);
 
 % plot FX trace
-t=(0:length(fx)-1)*0.01;  %length(fx)=cou
-subplot(3,1,2);
-plot(t, fx,'.');
-legend('FX Trace'); %legend('energy')
-xlabel('Time (s)');
-ylabel('Frequency (Hz)'); 
-t=(0:length(fx)-1)*0.01;
-subplot(3,1,3); plot(t,energy);
-xlabel('Time (s)');
-ylabel('energy dB')
+% t=(0:length(fx)-1)*0.01;  %length(fx)=cou
+% subplot(3,1,2);
+% plot(t, fx,'.');
+% legend('FX Trace'); %legend('energy')
+% xlabel('Time (s)');
+% ylabel('Frequency (Hz)'); 
+% t=(0:length(fx)-1)*0.01;
+% subplot(3,1,3); plot(t,energy);
+% xlabel('Time (s)');
+% ylabel('energy dB')
  %keyboard
- t1= (0:ms20)/fs;
+%  t1= (0:ms20)/fs;
 % subplot(4,1,4);
 % plot(t1,r);
 % legend('Autocorrelation');
 % xlabel('Time (s)');
 % ylabel('coeff');
 
-fprintf('fx=%gHz\n',medianfx);  %  rmax=%g  ,rmax,
-
-if (medianfx <= 205)
-    fprintf ('this is male')
-        
-else if (medianfx >205 && stdfx> 50)
-    fprintf('this is female')
-   
-    else 
-    fprintf('this is female')
-    end
-end;
 % figure
 % hist(fx)
+
+end
