@@ -1,11 +1,14 @@
-function [meanfx] = speechAnalysis_f(x1,fs,nb)
-x1=x1(:,1);
-%generate test tone:
-% fs=12000;
-% f=150;
-% N=fs;
-% n=0:N-1;
-% x1=sin(2*pi*f*n/fs);
+function [meanfx, stdfx, mEnrgy, fEnrgy, tEnrgy] = speechAnalysis_f(f,fs,nb)
+f=f(:,1);
+
+
+
+threshold1 = max(abs(f))*0.3;
+threshold2 = max(abs(f))*1;
+f(abs(f)<threshold1) = 0;
+f(abs(f)>threshold2) = 0;
+x1=f;
+
 ms1=floor(fs*0.001);
 ms2=floor(fs*0.002);
 ms10=floor(fs*0.01);
@@ -20,8 +23,10 @@ ms30=floor(fs*0.03);
 % xlabel('Time (s)');
 % ylabel('Amplitude');
 
-h = fir1(128, 0.075);        %lavepass filter
-x = conv(x1, h);              %output of the lavepass filter
+% h = fir1(128, 0.075);        %lavepass filter
+% x = conv(x1, h);              %output of the lavepass filter
+x=x1;
+
 len = length(x);
 % nbFrame = floor((len - ms20) / ms10) + 1;
 % for i = 1:ms20
@@ -75,7 +80,7 @@ cou=1;
     y=x(pos:pos+ms30-1);  
     y= y .*hamming(ms30);
     y1=y-mean(y);
-    energy(cou)= 10*log10(dot(y1,y1)); % energy= [energy 10*log10(dot(y,y))];  % calculate energy
+    energy(cou)= sum(abs(y)); % energy= [energy 10*log10(dot(y,y))];  % calculate energy
     ethr = 0.3*median(energy);
     r=xcorr(y1,ms20,'coeff');      % calculate autocorrelation
     r=r(ms20+1:2*ms20+1);          %half part of r
@@ -84,11 +89,11 @@ cou=1;
     C=ifft(log(abs(Y1)+eps)); % cepstrum is IDFT of log spectrum
     [c,fxv]=max(abs(C(ms2:ms20)));
    
-    if (rmax > 0.5 && energy(cou) > ethr) 
+     if (rmax > 0.5 && energy(cou) > ethr) 
         fx= [fx fs/(ms2+fxv-1)];
-    else
-        fx= [fx NaN];
-    end;
+     else
+         fx= [fx NaN];
+     end;
     cou = cou +1;
     pos=pos+ms10;
  end;
@@ -113,15 +118,23 @@ cou=1;
 
 gx =[];
 j=1;
+mEnrgy = 0;
+fEnrgy = 0;
+tEnrgy = sum(energy);
 for i= 1:length(fx)
-    if (fx(i)>0 && fx(i)<500)
+    if (fx(i)>75 && fx(i)<275)
         gx(j)=fx(i);
         j=j+1;
         
+        if(fx(i) < 165)
+            mEnrgy = mEnrgy + energy(i); 
+        elseif(fx(i) > 180)
+            fEnrgy = fEnrgy + energy(i);
+        end
     end
 end
-meanfx=mean(gx);
- 
+meanfx=median(gx);
+stdfx=std(gx);
 % % plot FX trace
 % t=(0:length(fx)-1)*0.01;  %length(fx)=cou
 % subplot(4,1,4);
@@ -132,5 +145,5 @@ meanfx=mean(gx);
 
 
 
-fprintf('Fx=%gHz\n',meanfx);%fs/(ms2+fxv-1));
+% fprintf('Fx=%gHz\n',meanfx);%fs/(ms2+fxv-1));
 end
