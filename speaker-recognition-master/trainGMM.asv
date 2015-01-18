@@ -1,0 +1,93 @@
+clear;
+training_features1 = [];
+training_features2 = [];
+td1 = [];
+td2 = [];
+
+[filenames, pathname] = uigetfile( ...
+{  '*.wav','WAV-files (*.wav)'; ...
+   '*.*',  'All Files (*.*)'}, ...
+   'Male training files', ...
+   'MultiSelect', 'on');
+if iscell(filenames)
+    nbfiles = length(filenames);
+elseif filenames ~= 0
+    nbfiles = 1;
+else
+    nbfiles = 0;
+end
+for K = 1 : nbfiles
+  if(nbfiles > 1)
+      filename = filenames{K};
+  else
+      filename = filenames;
+  end
+  thisfullname = fullfile(pathname, filename);
+%   disp('--------------------------------------------------');
+  fprintf('\n%20s\t',filename);
+  
+
+
+%% Data Input
+    [f,fs] = audioread(thisfullname);
+    f=f(:,1);
+%     if(K>1&&FS~=fs)
+%         continue;
+%     end
+%     FS=fs;
+%     td1 = [td1;f];
+    
+    %% Feature Extraction (MFCCs)
+    training_features1 = [training_features1;melcepst(f, fs)];
+end
+
+[filenames, pathname, filterindex] = uigetfile( ...
+{  '*.wav','WAV-files (*.wav)'; ...
+   '*.*',  'All Files (*.*)'}, ...
+   'Female training files', ...
+   'MultiSelect', 'on');
+if iscell(filenames)
+    nbfiles = length(filenames);
+elseif filenames ~= 0
+    nbfiles = 1;
+else
+    nbfiles = 0;
+end
+for K = 1 : nbfiles
+  if(nbfiles > 1)
+      filename = filenames{K};
+  else
+      filename = filenames;
+  end
+  thisfullname = fullfile(pathname, filename);
+%   disp('--------------------------------------------------');
+  fprintf('\n%20s\t',filename);
+  
+
+
+%% Data Input
+    [f,fs] = audioread(thisfullname);
+    f=f(:,1);   
+%     if(K>1&&FS~=fs)
+%         continue;
+%     end
+%     FS=fs;
+%     td2 = [td2;f];
+
+%% Feature Extraction (MFCCs)
+    training_features2 = [training_features2;melcepst(td2, FS)];
+end
+
+
+
+mean_training_feature1 = mean(training_features1);
+mean_training_feature2 = mean(training_features2);
+
+
+No_of_Clusters = 2;
+No_of_Iterations = 1;
+
+[training_idx1, training_mu1, training_sigma1] = GMM(training_features1', No_of_Clusters, No_of_Iterations);
+[training_idx2, training_mu2, training_sigma2] = GMM(training_features2', No_of_Clusters, No_of_Iterations);
+
+
